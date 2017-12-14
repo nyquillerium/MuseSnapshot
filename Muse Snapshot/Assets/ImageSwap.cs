@@ -16,15 +16,13 @@ public class ImageSwap : MonoBehaviour {
         {
             FaceState = Random.Range(0, 2);
             Debug.Log("New face: " + FaceState);
-            FinishRound();
             yield return new WaitForSeconds(3);
         }
     }
 
     void FinishRound()
     {
-        if (manager.playing)
-            manager.Calibrating = false;
+        manager.Calibrating = false;
     }
 
     // Use this for initialization
