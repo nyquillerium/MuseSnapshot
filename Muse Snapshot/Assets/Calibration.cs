@@ -11,7 +11,7 @@ public class Calibration : MonoBehaviour {
     public float resultset = 0;
     private bool issmile;
     public bool isSmiling = false;
-    private bool playing = false;
+    
     public int score = 0;
     
     void Start()
@@ -24,7 +24,7 @@ public class Calibration : MonoBehaviour {
     {
         if (manager.Calibrating)
         {
-            if (manager.CalibrationEEG.Count >= 1000 && !playing)
+            if (manager.CalibrationEEG.Count >= 1000 && !manager.playing)
             {
                 manager.Calibrating = false;
 
@@ -48,7 +48,7 @@ public class Calibration : MonoBehaviour {
 
                 manager.CalibrationEEG.Clear();
             }
-            else if (playing && !manager.Calibrating)
+            else if (manager.playing && !manager.Calibrating)
             {
                 foreach (float f in manager.CalibrationEEG)
                 {
@@ -56,10 +56,17 @@ public class Calibration : MonoBehaviour {
                 }
                 resultset /= manager.CalibrationEEG.Count;
                 if (Smiling(smileset, offset, resultset))
+                {
                     score++;
+                    Debug.Log("win");
+                }
+                else
+                    Debug.Log("Lose");
                 GameObject.Find("ScoreText").GetComponent<Text>().text = "Score: " + score.ToString();
+                manager.CalibrationEEG.Clear();
+                manager.Calibrating = true;
             }
-        }
+        }   
 
         if (offset != 0 && !manager.Calibrating)
         {
@@ -88,7 +95,7 @@ public class Calibration : MonoBehaviour {
 
     public void playGame()
     {
-        playing = true;
+        manager.playing = true;
         manager.Calibrating = true;
     }
 

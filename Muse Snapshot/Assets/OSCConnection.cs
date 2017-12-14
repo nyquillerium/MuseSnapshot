@@ -16,6 +16,7 @@ public class OSCConnection : MonoBehaviour
     public List<float> m100EEG;
     public bool Calibrating = false;
     public float m100;
+    public bool playing = false;
 
     void Start()
     { 
