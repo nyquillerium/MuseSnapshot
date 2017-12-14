@@ -8,12 +8,10 @@ public class Calibration : MonoBehaviour {
     private OSCConnection manager;
     public float offset = 0;
     public float smileset = 0;
-    public float resultset = 0;
     private bool issmile;
     public bool isSmiling = false;
-    private bool playing = false;
-    public int score = 0;
-    
+    public Sprite smileTex;
+    public Sprite notSmileTex;
     void Start()
     {
         manager = GameObject.FindObjectOfType<OSCConnection>();
@@ -24,7 +22,7 @@ public class Calibration : MonoBehaviour {
     {
         if (manager.Calibrating)
         {
-            if (manager.CalibrationEEG.Count >= 1000 && !playing)
+            if (manager.CalibrationEEG.Count >= 1000)
             {
                 manager.Calibrating = false;
 
@@ -45,19 +43,8 @@ public class Calibration : MonoBehaviour {
                     smileset /= manager.CalibrationEEG.Count;
                     GameObject.Find("SmilesetText").GetComponent<Text>().text = "Smileset: " + smileset;
                 }
-
+                    
                 manager.CalibrationEEG.Clear();
-            }
-            else if (playing && !manager.Calibrating)
-            {
-                foreach (float f in manager.CalibrationEEG)
-                {
-                    resultset += f;
-                }
-                resultset /= manager.CalibrationEEG.Count;
-                if (Smiling(smileset, offset, resultset))
-                    score++;
-                GameObject.Find("ScoreText").GetComponent<Text>().text = "Score: " + score.ToString();
             }
         }
 
@@ -68,11 +55,19 @@ public class Calibration : MonoBehaviour {
 
         if (offset != 0 && smileset != 0)
         {
-            if (Smiling(smileset, offset, manager.m100))
+            if (Smiling(smileset, offset))
                 isSmiling = true;
             else
                 isSmiling = false;
         }
+
+        if (isSmiling)
+            GameObject.Find("FaceState").GetComponent<Image>().sprite = smileTex;
+        else
+            GameObject.Find("FaceState").GetComponent<Image>().sprite = notSmileTex;
+
+        
+
     }
     public void Calibrate()
     {
@@ -86,14 +81,10 @@ public class Calibration : MonoBehaviour {
         manager.Calibrating = true;
     }
 
-    public void playGame()
+    public bool Smiling(float smilef, float normalf)
     {
-        playing = true;
-        manager.Calibrating = true;
-    }
+        float compareValue = manager.m100;
 
-    public bool Smiling(float smilef, float normalf, float compareValue)
-    { 
         float calcA = Math.Abs((long)smilef - compareValue);
         float calcB = Math.Abs((long)normalf - compareValue);
 
