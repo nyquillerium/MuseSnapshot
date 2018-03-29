@@ -3,112 +3,75 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using SharpLearning.RandomForest.Models;
 
 public class Calibration : MonoBehaviour {
     private OSCConnection manager;
     public float offset = 0;
     public float smileset = 0;
-    public float resultset = 0;
     private bool issmile;
     public bool isSmiling = false;
-    
-    public int score = 0;
-    
+    public Sprite smileTex;
+    public Sprite sadTex;
+    public Sprite surpriseTex;
+    public Sprite angerTex;
+    int count = 0;
+    int currentFace;
+    private ClassificationForestModel l_model;
     void Start()
     {
         manager = GameObject.FindObjectOfType<OSCConnection>();
-
+        l_model = GameObject.FindObjectOfType<CSVParse>().model;
     }
 
     void Update()
     {
-        if (manager.Calibrating)
+        if (manager.Capturing)
         {
-            if (manager.CalibrationEEG.Count >= 1000 && !manager.playing)
-            {
-                manager.Calibrating = false;
-
-                foreach (float f in manager.CalibrationEEG)
-                {
-                    if (!issmile)
-                        offset += f;
-                    else
-                        smileset += f;
-                }
-                if (!issmile)
-                {
-                    offset /= manager.CalibrationEEG.Count;
-                    GameObject.Find("OffsetText").GetComponent<Text>().text = "Offset: " + offset;
-                }
-                else
-                {
-                    smileset /= manager.CalibrationEEG.Count;
-                    GameObject.Find("SmilesetText").GetComponent<Text>().text = "Smileset: " + smileset;
-                }
-
-                manager.CalibrationEEG.Clear();
-            }
-            else if (manager.playing && !manager.Calibrating)
-            {
-                foreach (float f in manager.CalibrationEEG)
-                {
-                    resultset += f;
-                }
-                resultset /= manager.CalibrationEEG.Count;
-                if (Smiling(smileset, offset, resultset))
-                {
-                    score++;
-                    Debug.Log("win");
-                }
-                else
-                    Debug.Log("Lose");
-                GameObject.Find("ScoreText").GetComponent<Text>().text = "Score: " + score.ToString();
-                manager.CalibrationEEG.Clear();
-                manager.Calibrating = true;
-            }
-        }   
-
-        if (offset != 0 && !manager.Calibrating)
-        {
-            GameObject.Find("SCalibrationButton").GetComponent<Button>().interactable = true;
-        }
-
-        if (offset != 0 && smileset != 0)
-        {
-            if (Smiling(smileset, offset, manager.m100))
-                isSmiling = true;
+            double[] currentVal = { manager.s1, manager.s2, manager.s3, manager.s4 };
+            if (count <= 25)
+                count++;
             else
-                isSmiling = false;
+            {
+                currentFace = Convert.ToInt32(l_model.Predict(currentVal));
+                count = 0;
+            }
+            
         }
-    }
-    public void Calibrate()
-    {
-        issmile = false;
-        manager.Calibrating = true;
-    }
 
-    public void CalibrateSmile()
-    {
-        issmile = true;
-        manager.Calibrating = true;
-    }
-
-    public void playGame()
-    {
-        manager.playing = true;
-        manager.Calibrating = true;
-    }
-
-    public bool Smiling(float smilef, float normalf, float compareValue)
-    { 
-        float calcA = Math.Abs((long)smilef - compareValue);
-        float calcB = Math.Abs((long)normalf - compareValue);
-
-        if (calcA < calcB)
+        switch (currentFace)
         {
-            return true;
+            case 1:
+                GameObject.Find("FaceState").GetComponent<Image>().sprite = smileTex;
+                break;
+            case 2:
+                GameObject.Find("FaceState").GetComponent<Image>().sprite = sadTex;
+                break;
+            case 3:
+                GameObject.Find("FaceState").GetComponent<Image>().sprite = surpriseTex;
+                break;
+            case 4:
+                GameObject.Find("FaceState").GetComponent<Image>().sprite = angerTex;
+                break;
         }
 
-        return false;
     }
+    public void Capture()
+    {
+        manager.Capturing = true;
+        GameObject.Find("FakeButton").GetComponent<Button>().interactable = false;
+    }
+
+    public void Fake()
+    {
+        double[] currentVal = { double.Parse(GameObject.Find("Fake1").GetComponent<InputField>().text),
+           double.Parse(GameObject.Find("Fake2").GetComponent<InputField>().text),
+           double.Parse(GameObject.Find("Fake3").GetComponent<InputField>().text),
+           double.Parse(GameObject.Find("Fake4").GetComponent<InputField>().text)
+        };
+        int current = Convert.ToInt32(l_model.Predict(currentVal));
+        currentFace = current;
+        Debug.Log("Fake values produced: " + current);
+    }
+
 }

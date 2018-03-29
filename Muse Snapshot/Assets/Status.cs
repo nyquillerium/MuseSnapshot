@@ -17,15 +17,15 @@ public class Status : MonoBehaviour
 	    if (manager.SensorA == 1)
 	    {
 	        GameObject.Find("ForeheadText").GetComponent<Text>().color = Color.green;
-	        GameObject.Find("EEGText").GetComponent<Text>().text = manager.m100.ToString();
-	        GameObject.Find("CalibrationButton").GetComponent<Button>().interactable = true;
+            GameObject.Find("EEGText").GetComponent<Text>().text = manager.s1.ToString();
+            GameObject.Find("CaptureButton").GetComponent<Button>().interactable = true;
 	    }
 	    else
 	    {
 	        GameObject.Find("ForeheadText").GetComponent<Text>().color = new Color(177, 0, 0);
 	        GameObject.Find("EEGText").GetComponent<Text>().text = "";
-	        GameObject.Find("CalibrationButton").GetComponent<Button>().interactable = false;
-	    }
+            GameObject.Find("CaptureButton").GetComponent<Button>().interactable = false;
+        }
 
 	}
 }

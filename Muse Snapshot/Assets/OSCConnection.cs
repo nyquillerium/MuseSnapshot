@@ -11,12 +11,10 @@ public class OSCConnection : MonoBehaviour
     Osc handler;
     UDPPacketIO udp;
     public bool signal = false;
-    public float SensorA, s1, c1;
-    public List<float> CalibrationEEG;
+    public float SensorA, s1, s2, s3, s4;
     public List<float> m100EEG;
-    public bool Calibrating = false;
     public float m100;
-    public bool playing = false;
+    public bool Capturing;
 
     void Start()
     { 
@@ -42,28 +40,22 @@ public class OSCConnection : MonoBehaviour
         string msgAddress = oscMessage.Address; 
         if (msgAddress == "/muse/elements/touching_forehead")
             SensorA = (int)oscMessage.Values[0]; // 0 = not touching
-        if (msgAddress == "/muse/eeg")
+        if (msgAddress == "/muse/eeg/TP9")
         {
             s1 = (float)oscMessage.Values[0];
-            if (Calibrating)
-            {
-                CalibrationEEG.Add((float)oscMessage.Values[0]);
-            }
-            if (m100EEG.Count >= 100)
-            {
-                foreach (float f in m100EEG)
-                {
-                    m100 += f;
-                }
-                m100 /= m100EEG.Count;
-                m100EEG.Clear();
-            }
-            m100EEG.Add((float)oscMessage.Values[0]);
             
         }
-        if (msgAddress == "/muse/elements/alpha_relative")
+        if (msgAddress == "/muse/eeg/Fp1")
         {
-            c1 = (float)oscMessage.Values[0];
+            s2 = (float)oscMessage.Values[0];
+        }
+        if (msgAddress == "/muse/eeg/Fp2")
+        {
+            s3 = (float)oscMessage.Values[0];
+        }
+        if (msgAddress == "/muse/eeg/TP10")
+        {
+            s4 = (float)oscMessage.Values[0];
         }
     }
 }
