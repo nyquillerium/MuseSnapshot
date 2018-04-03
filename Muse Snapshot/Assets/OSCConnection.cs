@@ -40,22 +40,13 @@ public class OSCConnection : MonoBehaviour
         string msgAddress = oscMessage.Address; 
         if (msgAddress == "/muse/elements/touching_forehead")
             SensorA = (int)oscMessage.Values[0]; // 0 = not touching
-        if (msgAddress == "/muse/eeg/TP9")
+        if (msgAddress == "/muse/eeg")
         {
             s1 = (float)oscMessage.Values[0];
-            
-        }
-        if (msgAddress == "/muse/eeg/Fp1")
-        {
-            s2 = (float)oscMessage.Values[0];
-        }
-        if (msgAddress == "/muse/eeg/Fp2")
-        {
-            s3 = (float)oscMessage.Values[0];
-        }
-        if (msgAddress == "/muse/eeg/TP10")
-        {
-            s4 = (float)oscMessage.Values[0];
+            s2 = (float)oscMessage.Values[1];
+            s3 = (float)oscMessage.Values[2];
+            s4 = (float)oscMessage.Values[3];
+            Debug.Log(msgString);
         }
     }
 }

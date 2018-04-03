@@ -15,9 +15,13 @@ public class Calibration : MonoBehaviour {
     public Sprite sadTex;
     public Sprite surpriseTex;
     public Sprite angerTex;
+
+    
     int count = 0;
     int currentFace;
     private ClassificationForestModel l_model;
+    bool calibrating;
+
     void Start()
     {
         manager = GameObject.FindObjectOfType<OSCConnection>();
@@ -26,6 +30,8 @@ public class Calibration : MonoBehaviour {
 
     void Update()
     {
+        
+
         if (manager.Capturing)
         {
             double[] currentVal = { manager.s1, manager.s2, manager.s3, manager.s4 };
@@ -61,6 +67,8 @@ public class Calibration : MonoBehaviour {
         manager.Capturing = true;
         GameObject.Find("FakeButton").GetComponent<Button>().interactable = false;
     }
+
+    
 
     public void Fake()
     {
